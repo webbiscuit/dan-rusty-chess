@@ -1,3 +1,4 @@
+use crate::chess_move::ChessMove;
 use std::str;
 
 pub type SquareIndex = u32;
@@ -44,18 +45,18 @@ impl ChessBoard {
     }
     fn get_piece_graphic(piece: char) -> char {
         match piece {
-            'r' => '\u{265C}',
-            'R' => '\u{2656}',
-            'n' => '\u{265E}',
-            'N' => '\u{2658}',
-            'b' => '\u{265D}',
-            'B' => '\u{2657}',
-            'k' => '\u{265A}',
-            'K' => '\u{2654}',
-            'q' => '\u{265B}',
-            'Q' => '\u{2655}',
-            'p' => '\u{265F}',
-            'P' => '\u{2659}',
+            'R' => '\u{265C}',
+            'r' => '\u{2656}',
+            'N' => '\u{265E}',
+            'n' => '\u{2658}',
+            'B' => '\u{265D}',
+            'b' => '\u{2657}',
+            'K' => '\u{265A}',
+            'k' => '\u{2654}',
+            'Q' => '\u{265B}',
+            'q' => '\u{2655}',
+            'P' => '\u{265F}',
+            'p' => '\u{2659}',
             _ => 'X',
         }
     }
@@ -63,7 +64,7 @@ impl ChessBoard {
     pub fn draw(&self) -> String {
         let mut output: String = "".to_owned();
 
-        output.push_str("  a b c d e f g h\n");
+        output.push_str("   a b c d e f g h\n");
 
         for rank in (1..9).rev() {
             output.push_str(&format!("{} ", rank));
@@ -85,9 +86,15 @@ impl ChessBoard {
 
             output += "\n";
         }
-        output.push_str("  a b c d e f g h");
+        output.push_str("   a b c d e f g h");
 
         return output;
+    }
+
+    pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
+        let mut moves: Vec<ChessMove> = Vec::new();
+        moves.push(ChessMove::new(1));
+        return moves;
     }
 }
 

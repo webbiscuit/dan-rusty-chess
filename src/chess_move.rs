@@ -8,4 +8,8 @@ impl ChessMove {
     pub fn new(destination: SquareIndex) -> ChessMove {
         ChessMove { destination }
     }
+
+    pub fn destination(&self) -> SquareIndex {
+        return self.destination;
+    }
 }
