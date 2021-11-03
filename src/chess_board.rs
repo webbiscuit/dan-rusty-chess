@@ -66,7 +66,7 @@ impl ChessBoard {
 
         output.push_str("   a b c d e f g h\n");
 
-        for rank in (1..9).rev() {
+        for rank in (1..=8).rev() {
             output.push_str(&format!("{} ", rank));
             for (i, square) in self.get_rank(rank).iter().enumerate() {
                 if *square == None {
