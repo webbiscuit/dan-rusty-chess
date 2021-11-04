@@ -1,4 +1,5 @@
 use crate::chess_move::ChessMove;
+use crate::piece::Piece;
 use colored::*;
 use std::str;
 
@@ -44,26 +45,6 @@ impl ChessBoard {
         let start = (rank - 1) * 8;
         &self.board[start..start + 8]
     }
-    fn get_piece_graphic(piece: char) -> char {
-        match piece.to_ascii_uppercase() {
-            'R' => '\u{265C}',
-            'r' => '\u{2656}',
-            'N' => '\u{265E}',
-            'n' => '\u{2658}',
-            'B' => '\u{265D}',
-            'b' => '\u{2657}',
-            'K' => '\u{265A}',
-            'k' => '\u{2654}',
-            'Q' => '\u{265B}',
-            'q' => '\u{2655}',
-            'P' => '\u{265F}',
-            'p' => '\u{2659}',
-            _ => ' ',
-        }
-    }
-    fn is_piece_black(piece: char) -> bool {
-        piece.is_lowercase()
-    }
 
     pub fn draw(&self) -> String {
         let mut output: String = "".to_owned();
@@ -73,9 +54,9 @@ impl ChessBoard {
         for rank in (1..=8).rev() {
             output.push_str(&format!("{} ", rank));
             for (i, square) in self.get_rank(rank).iter().enumerate() {
-                let piece_char = square.unwrap_or_default();
-                let piece_symbol = &format!("{} ", ChessBoard::get_piece_graphic(piece_char));
-                let piece_symbol = if ChessBoard::is_piece_black(piece_char) {
+                let piece = Piece::new(square.unwrap_or_default());
+                let piece_symbol = &format!("{} ", piece.get_graphic());
+                let piece_symbol = if piece.is_black() {
                     piece_symbol.truecolor(0, 0, 0)
                 } else {
                     piece_symbol.truecolor(240, 240, 240)
@@ -96,6 +77,29 @@ impl ChessBoard {
         return output;
     }
 
+    pub fn square_from_notation(notation: &str) -> Option<SquareIndex> {
+        let files = "abcdefgh";
+        let ranks = "12345678";
+
+        let file = notation.chars().nth(0);
+        let rank = notation.chars().nth(1);
+
+        let file_ix = files.find(file?);
+        let rank_ix = ranks.find(rank?);
+
+        let ix = Some((file_ix? + rank_ix? * 8).try_into().unwrap());
+
+        return ix;
+    }
+
+    pub fn square_to_notation(index: SquareIndex) -> String {
+        return "A1".to_string();
+    }
+
+    pub fn square_from_file_and_rank(file: SquareIndex, rank: SquareIndex) -> SquareIndex {
+        return rank * 8 + file;
+    }
+
     pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
         let mut moves: Vec<ChessMove> = Vec::new();
         moves.push(ChessMove::new(1));
@@ -109,10 +113,18 @@ impl Default for ChessBoard {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     #[test]
-//     fn it_works() {
-//         assert_eq!(2 + 2, 4);
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_from_notation() {
+        assert_eq!(ChessBoard::square_from_notation("a1"), Some(0));
+        assert_eq!(ChessBoard::square_from_notation("a8"), Some(56));
+        assert_eq!(ChessBoard::square_from_notation("h1"), Some(7));
+        assert_eq!(ChessBoard::square_from_notation("h8"), Some(63));
+        assert_eq!(ChessBoard::square_from_notation("dan"), None);
+        assert_eq!(ChessBoard::square_from_notation("123"), None);
+        assert_eq!(ChessBoard::square_from_notation(""), None);
+    }
+}

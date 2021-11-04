@@ -4,7 +4,8 @@ use colored::*;
 
 mod chess_board;
 mod chess_move;
-mod square_index_finder;
+mod piece;
+// mod square;
 
 fn main() {
     let chess_board = chess_board::ChessBoard::from_fen(
@@ -15,9 +16,6 @@ fn main() {
 
     println!("♞  Dan's Rusty Chess ♞\n");
     println!("{}", ui);
-
-    // 'N' => '\u{265E}',
-    //         'n' => '\u{2658}',
 
     // let moves = chess_board.generate_moves(square_index_finder::from_notation("a8"));
 
