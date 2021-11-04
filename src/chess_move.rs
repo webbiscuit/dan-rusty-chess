@@ -10,6 +10,6 @@ impl ChessMove {
     }
 
     pub fn destination(&self) -> SquareIndex {
-        return self.destination;
+        self.destination
     }
 }

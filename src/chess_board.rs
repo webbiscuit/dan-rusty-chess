@@ -15,7 +15,7 @@ impl ChessBoard {
     pub fn from_fen(fen: &str) -> ChessBoard {
         let mut board = ChessBoard::new();
 
-        let mut fen_sections = fen.split(" ");
+        let mut fen_sections = fen.split(' ');
 
         let mut file: SquareIndex = 0;
         let mut rank: SquareIndex = 7;
@@ -35,7 +35,7 @@ impl ChessBoard {
             }
         }
 
-        return board;
+        board
     }
     fn get_rank(&self, rank: usize) -> &[Option<char>] {
         let start = (rank - 1) * 8;
@@ -70,30 +70,38 @@ impl ChessBoard {
         }
         output.push_str("  a b c d e f g h");
 
-        return output;
+        output
     }
 
-    // pub fn square_from_notation(notation: &str) -> Option<SquareIndex> {
-    //     let files = "abcdefgh";
-    //     let ranks = "12345678";
+    pub fn square_from_notation(notation: &str) -> Option<SquareIndex> {
+        let files = "abcdefgh";
+        let ranks = "12345678";
+        let mut notation_chars = notation.chars();
 
-    //     let file = notation.chars().nth(0);
-    //     let rank = notation.chars().nth(1);
+        let file = notation_chars.next();
+        let rank = notation_chars.next();
 
-    //     let file_ix = files.find(file?);
-    //     let rank_ix = ranks.find(rank?);
+        let file_ix = files.find(file?);
+        let rank_ix = ranks.find(rank?);
 
-    //     let ix = Some((file_ix? + rank_ix? * 8).try_into().unwrap());
+        Some((file_ix? + rank_ix? * 8).try_into().unwrap())
+    }
 
-    //     return ix;
-    // }
+    pub fn square_to_notation(index: SquareIndex) -> Option<String> {
+        let files = "abcdefgh";
+        let ranks = "12345678";
 
-    // pub fn square_to_notation(index: SquareIndex) -> String {
-    //     return "A1".to_string();
-    // }
+        let file_ix = index % 8;
+        let rank_ix = index / 8;
+
+        let file = files.chars().nth(file_ix.try_into().unwrap());
+        let rank = ranks.chars().nth(rank_ix.try_into().unwrap());
+
+        Some(format!("{}{}", file?, rank?))
+    }
 
     pub fn square_from_file_and_rank(file: SquareIndex, rank: SquareIndex) -> SquareIndex {
-        return rank * 8 + file;
+        rank * 8 + file
     }
 
     // pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
@@ -122,5 +130,16 @@ mod tests {
         assert_eq!(ChessBoard::square_from_notation("dan"), None);
         assert_eq!(ChessBoard::square_from_notation("123"), None);
         assert_eq!(ChessBoard::square_from_notation(""), None);
+    }
+
+    #[test]
+    fn test_to_notation() {
+        assert_eq!(ChessBoard::square_to_notation(0), Some("a1".to_string()));
+        assert_eq!(ChessBoard::square_to_notation(56), Some("a8".to_string()));
+        assert_eq!(ChessBoard::square_to_notation(7), Some("h1".to_string()));
+        assert_eq!(ChessBoard::square_to_notation(63), Some("h8".to_string()));
+        assert_eq!(ChessBoard::square_to_notation(999), None);
+        assert_eq!(ChessBoard::square_to_notation(u32::MAX), None);
+        assert_eq!(ChessBoard::square_to_notation(64), None);
     }
 }
