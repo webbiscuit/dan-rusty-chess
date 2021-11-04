@@ -1,4 +1,3 @@
-use crate::chess_move::ChessMove;
 use crate::piece::Piece;
 use colored::*;
 use std::str;
@@ -12,9 +11,6 @@ pub struct ChessBoard {
 impl ChessBoard {
     pub fn new() -> ChessBoard {
         ChessBoard { board: [None; 64] }
-    }
-    fn to_board_index(file: SquareIndex, rank: SquareIndex) -> SquareIndex {
-        return rank * 8 + file;
     }
     pub fn from_fen(fen: &str) -> ChessBoard {
         let mut board = ChessBoard::new();
@@ -33,8 +29,8 @@ impl ChessBoard {
                 rank -= 1;
                 file = 0;
             } else {
-                let ix = ChessBoard::to_board_index(file, rank);
-                board.board[ix as usize] = Some(piece_placement); //piece_placement;
+                let ix = ChessBoard::square_from_file_and_rank(file, rank);
+                board.board[ix as usize] = Some(piece_placement);
                 file += 1;
             }
         }
@@ -47,7 +43,7 @@ impl ChessBoard {
     }
 
     pub fn draw(&self) -> String {
-        let mut output: String = "".to_owned();
+        let mut output: String = format!("");
 
         output.push_str("  a b c d e f g h\n");
 
@@ -77,34 +73,34 @@ impl ChessBoard {
         return output;
     }
 
-    pub fn square_from_notation(notation: &str) -> Option<SquareIndex> {
-        let files = "abcdefgh";
-        let ranks = "12345678";
+    // pub fn square_from_notation(notation: &str) -> Option<SquareIndex> {
+    //     let files = "abcdefgh";
+    //     let ranks = "12345678";
 
-        let file = notation.chars().nth(0);
-        let rank = notation.chars().nth(1);
+    //     let file = notation.chars().nth(0);
+    //     let rank = notation.chars().nth(1);
 
-        let file_ix = files.find(file?);
-        let rank_ix = ranks.find(rank?);
+    //     let file_ix = files.find(file?);
+    //     let rank_ix = ranks.find(rank?);
 
-        let ix = Some((file_ix? + rank_ix? * 8).try_into().unwrap());
+    //     let ix = Some((file_ix? + rank_ix? * 8).try_into().unwrap());
 
-        return ix;
-    }
+    //     return ix;
+    // }
 
-    pub fn square_to_notation(index: SquareIndex) -> String {
-        return "A1".to_string();
-    }
+    // pub fn square_to_notation(index: SquareIndex) -> String {
+    //     return "A1".to_string();
+    // }
 
     pub fn square_from_file_and_rank(file: SquareIndex, rank: SquareIndex) -> SquareIndex {
         return rank * 8 + file;
     }
 
-    pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
-        let mut moves: Vec<ChessMove> = Vec::new();
-        moves.push(ChessMove::new(1));
-        return moves;
-    }
+    // pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
+    //     let mut moves: Vec<ChessMove> = Vec::new();
+    //     moves.push(ChessMove::new(1));
+    //     return moves;
+    // }
 }
 
 impl Default for ChessBoard {

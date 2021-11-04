@@ -1,11 +1,6 @@
-// use crate::chess_board::SquareIndex;
-// use crate::;
-use colored::*;
-
 mod chess_board;
 mod chess_move;
 mod piece;
-// mod square;
 
 fn main() {
     let chess_board = chess_board::ChessBoard::from_fen(
