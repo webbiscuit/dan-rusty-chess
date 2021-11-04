@@ -1,4 +1,5 @@
 use crate::chess_move::ChessMove;
+use colored::*;
 use std::str;
 
 pub type SquareIndex = u32;
@@ -44,7 +45,7 @@ impl ChessBoard {
         &self.board[start..start + 8]
     }
     fn get_piece_graphic(piece: char) -> char {
-        match piece {
+        match piece.to_ascii_uppercase() {
             'R' => '\u{265C}',
             'r' => '\u{2656}',
             'N' => '\u{265E}',
@@ -57,36 +58,40 @@ impl ChessBoard {
             'q' => '\u{2655}',
             'P' => '\u{265F}',
             'p' => '\u{2659}',
-            _ => 'X',
+            _ => ' ',
         }
+    }
+    fn is_piece_black(piece: char) -> bool {
+        piece.is_lowercase()
     }
 
     pub fn draw(&self) -> String {
         let mut output: String = "".to_owned();
 
-        output.push_str("   a b c d e f g h\n");
+        output.push_str("  a b c d e f g h\n");
 
         for rank in (1..=8).rev() {
             output.push_str(&format!("{} ", rank));
             for (i, square) in self.get_rank(rank).iter().enumerate() {
-                if *square == None {
-                    if (i + rank) % 2 == 0 {
-                        output.push('⬜');
-                    } else {
-                        output.push('⬛');
-                    }
+                let piece_char = square.unwrap_or_default();
+                let piece_symbol = &format!("{} ", ChessBoard::get_piece_graphic(piece_char));
+                let piece_symbol = if ChessBoard::is_piece_black(piece_char) {
+                    piece_symbol.truecolor(0, 0, 0)
                 } else {
-                    let piece = square.unwrap();
+                    piece_symbol.truecolor(240, 240, 240)
+                };
 
-                    output.push(ChessBoard::get_piece_graphic(piece));
-                    output.push(' ');
+                if (i + rank) % 2 == 0 {
+                    output.push_str(&format!("{}", piece_symbol.on_truecolor(168, 123, 80)));
+                } else {
+                    output.push_str(&format!("{}", piece_symbol.on_truecolor(100, 70, 25)));
                 }
             }
             output.push_str(&format!(" {} ", rank));
 
             output += "\n";
         }
-        output.push_str("   a b c d e f g h");
+        output.push_str("  a b c d e f g h");
 
         return output;
     }

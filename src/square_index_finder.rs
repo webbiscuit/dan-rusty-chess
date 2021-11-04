@@ -2,7 +2,7 @@
 //     index: SquareIndex,
 // }
 
-use std::ops::Index;
+// use std::ops::Index;
 
 use crate::chess_board::SquareIndex;
 
