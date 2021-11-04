@@ -1,8 +1,13 @@
-use crate::piece::Piece;
+use crate::{
+    chess_move::{ChessMove, MoveGenerator, StraightSlidingMoves},
+    piece::Piece,
+};
 use colored::*;
 use std::str;
 
 pub type SquareIndex = u32;
+pub type FileIndex = u32;
+pub type RankIndex = u32;
 
 pub struct ChessBoard {
     board: [Option<char>; 64],
@@ -91,8 +96,7 @@ impl ChessBoard {
         let files = "abcdefgh";
         let ranks = "12345678";
 
-        let file_ix = index % 8;
-        let rank_ix = index / 8;
+        let (file_ix, rank_ix) = ChessBoard::square_to_file_and_rank(index);
 
         let file = files.chars().nth(file_ix.try_into().unwrap());
         let rank = ranks.chars().nth(rank_ix.try_into().unwrap());
@@ -100,15 +104,27 @@ impl ChessBoard {
         Some(format!("{}{}", file?, rank?))
     }
 
-    pub fn square_from_file_and_rank(file: SquareIndex, rank: SquareIndex) -> SquareIndex {
+    pub fn square_from_file_and_rank(file: FileIndex, rank: RankIndex) -> SquareIndex {
         rank * 8 + file
     }
 
-    // pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
-    //     let mut moves: Vec<ChessMove> = Vec::new();
-    //     moves.push(ChessMove::new(1));
-    //     return moves;
-    // }
+    pub fn square_to_file_and_rank(squareIndex: SquareIndex) -> (FileIndex, RankIndex) {
+        let file_ix = squareIndex % 8;
+        let rank_ix = squareIndex / 8;
+
+        (file_ix, rank_ix)
+    }
+
+    pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
+        // let mover = StraightSlidingMoves {};
+
+        StraightSlidingMoves::generate_moves(self, index)
+
+        // mover.generate_moves(self, index);
+        // let mut moves: Vec<ChessMove> = Vec::new();
+        // moves.push(ChessMove::new(1));
+        // return moves;
+    }
 }
 
 impl Default for ChessBoard {
