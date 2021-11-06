@@ -5,18 +5,24 @@ use crate::{
 use colored::*;
 use std::str;
 
-pub type SquareIndex = u32;
-pub type FileIndex = u32;
-pub type RankIndex = u32;
+const TOTAL_RANKS: u8 = 8;
+const TOTAL_FILES: u8 = 8;
+const TOTAL_SQUARES: u8 = TOTAL_RANKS * TOTAL_FILES;
+
+pub type SquareIndex = u8;
+pub type FileIndex = u8;
+pub type RankIndex = u8;
 
 pub struct ChessBoard {
-    board: [Option<Piece>; 64],
+    board: [Option<Piece>; TOTAL_SQUARES as usize],
 }
 
 impl ChessBoard {
     pub fn new() -> ChessBoard {
         const INIT: Option<Piece> = None;
-        ChessBoard { board: [INIT; 64] }
+        ChessBoard {
+            board: [INIT; TOTAL_SQUARES as usize],
+        }
     }
     pub fn from_fen(fen: &str) -> ChessBoard {
         let mut board = ChessBoard::new();
@@ -24,13 +30,13 @@ impl ChessBoard {
         let mut fen_sections = fen.split(' ');
 
         let mut file: SquareIndex = 0;
-        let mut rank: SquareIndex = 7;
+        let mut rank: SquareIndex = TOTAL_RANKS - 1;
 
         let piece_placements = fen_sections.next().unwrap_or("");
 
         for piece_placement in piece_placements.chars() {
             if piece_placement.is_digit(10) {
-                file += piece_placement.to_digit(10).unwrap_or_default()
+                file += piece_placement.to_digit(10).unwrap_or_default() as u8
             } else if piece_placement == '/' {
                 rank -= 1;
                 file = 0;
@@ -45,8 +51,8 @@ impl ChessBoard {
         board
     }
     fn get_pieces_on_rank(&self, rank: usize) -> &[Option<Piece>] {
-        let start = (rank - 1) * 8;
-        &self.board[start..start + 8]
+        let start = (rank - 1) * TOTAL_FILES as usize;
+        &self.board[start..start + TOTAL_FILES as usize]
     }
 
     pub fn draw(&self) -> String {
@@ -54,9 +60,9 @@ impl ChessBoard {
 
         output.push_str("  a b c d e f g h\n");
 
-        for rank in (1..=8).rev() {
+        for rank in (1..=TOTAL_RANKS).rev() {
             output.push_str(&format!("{} ", rank));
-            for (i, piece) in self.get_pieces_on_rank(rank).iter().enumerate() {
+            for (i, piece) in self.get_pieces_on_rank(rank.into()).iter().enumerate() {
                 let coloured_symbol: ColoredString;
 
                 if let Some(piece) = piece {
@@ -72,7 +78,7 @@ impl ChessBoard {
                     coloured_symbol = piece_symbol.white();
                 }
 
-                if (i + rank) % 2 == 0 {
+                if (i + (rank as usize)) % 2 == 0 {
                     output.push_str(&format!("{}", coloured_symbol.on_truecolor(168, 123, 80)));
                 } else {
                     output.push_str(&format!("{}", coloured_symbol.on_truecolor(100, 70, 25)));
@@ -114,9 +120,9 @@ impl ChessBoard {
     }
 
     pub fn square_from_file_and_rank(file: FileIndex, rank: RankIndex) -> Option<SquareIndex> {
-        let ix = rank * 8 + file;
+        let ix = rank * TOTAL_RANKS + file;
 
-        if ix >= 8 * 8 {
+        if ix >= TOTAL_SQUARES {
             None
         } else {
             Some(ix)
@@ -124,8 +130,8 @@ impl ChessBoard {
     }
 
     pub fn square_to_file_and_rank(square_index: SquareIndex) -> (FileIndex, RankIndex) {
-        let file_ix = square_index % 8;
-        let rank_ix = square_index / 8;
+        let file_ix = square_index % TOTAL_FILES;
+        let rank_ix = square_index / TOTAL_RANKS;
 
         (file_ix, rank_ix)
     }
@@ -164,8 +170,8 @@ mod tests {
         assert_eq!(ChessBoard::square_to_notation(56), Some("a8".to_string()));
         assert_eq!(ChessBoard::square_to_notation(7), Some("h1".to_string()));
         assert_eq!(ChessBoard::square_to_notation(63), Some("h8".to_string()));
-        assert_eq!(ChessBoard::square_to_notation(999), None);
-        assert_eq!(ChessBoard::square_to_notation(u32::MAX), None);
+        assert_eq!(ChessBoard::square_to_notation(255), None);
+        assert_eq!(ChessBoard::square_to_notation(u8::MAX), None);
         assert_eq!(ChessBoard::square_to_notation(64), None);
     }
 
