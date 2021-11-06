@@ -5,13 +5,13 @@ use crate::{
 use colored::*;
 use std::str;
 
-const TOTAL_RANKS: u8 = 8;
-const TOTAL_FILES: u8 = 8;
-const TOTAL_SQUARES: u8 = TOTAL_RANKS * TOTAL_FILES;
-
 pub type SquareIndex = u8;
 pub type FileIndex = u8;
 pub type RankIndex = u8;
+
+const TOTAL_RANKS: RankIndex = 8;
+const TOTAL_FILES: FileIndex = 8;
+const TOTAL_SQUARES: SquareIndex = TOTAL_RANKS * TOTAL_FILES;
 
 pub struct ChessBoard {
     board: [Option<Piece>; TOTAL_SQUARES as usize],
