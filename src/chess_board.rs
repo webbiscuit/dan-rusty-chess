@@ -1,5 +1,5 @@
 use crate::{
-    chess_move::{ChessMove, MoveGenerator, StraightSlidingMoves},
+    chess_move::{ChessMove, DiagonalSlidingMoves, MoveGenerator},
     piece::Piece,
 };
 use colored::*;
@@ -34,7 +34,7 @@ impl ChessBoard {
                 rank -= 1;
                 file = 0;
             } else {
-                let ix = ChessBoard::square_from_file_and_rank(file, rank);
+                let ix = ChessBoard::square_from_file_and_rank(file, rank).unwrap();
                 board.board[ix as usize] = Some(piece_placement);
                 file += 1;
             }
@@ -104,13 +104,19 @@ impl ChessBoard {
         Some(format!("{}{}", file?, rank?))
     }
 
-    pub fn square_from_file_and_rank(file: FileIndex, rank: RankIndex) -> SquareIndex {
-        rank * 8 + file
+    pub fn square_from_file_and_rank(file: FileIndex, rank: RankIndex) -> Option<SquareIndex> {
+        let ix = rank * 8 + file;
+
+        if ix >= 8 * 8 {
+            None
+        } else {
+            Some(ix)
+        }
     }
 
-    pub fn square_to_file_and_rank(squareIndex: SquareIndex) -> (FileIndex, RankIndex) {
-        let file_ix = squareIndex % 8;
-        let rank_ix = squareIndex / 8;
+    pub fn square_to_file_and_rank(square_index: SquareIndex) -> (FileIndex, RankIndex) {
+        let file_ix = square_index % 8;
+        let rank_ix = square_index / 8;
 
         (file_ix, rank_ix)
     }
@@ -118,7 +124,8 @@ impl ChessBoard {
     pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
         // let mover = StraightSlidingMoves {};
 
-        StraightSlidingMoves::generate_moves(self, index)
+        // StraightSlidingMoves::generate_moves(self, index)
+        DiagonalSlidingMoves::generate_moves(self, index)
 
         // mover.generate_moves(self, index);
         // let mut moves: Vec<ChessMove> = Vec::new();
@@ -157,5 +164,18 @@ mod tests {
         assert_eq!(ChessBoard::square_to_notation(999), None);
         assert_eq!(ChessBoard::square_to_notation(u32::MAX), None);
         assert_eq!(ChessBoard::square_to_notation(64), None);
+    }
+
+    #[test]
+    fn test_to_and_from_file_ranks() {
+        let square = ChessBoard::square_from_file_and_rank(1, 1).unwrap();
+        assert_eq!("b2", ChessBoard::square_to_notation(square).unwrap());
+        // assert_eq!(ChessBoard::square_from_notation("a1"), Some(0));
+        // assert_eq!(ChessBoard::square_from_notation("a8"), Some(56));
+        // assert_eq!(ChessBoard::square_from_notation("h1"), Some(7));
+        // assert_eq!(ChessBoard::square_from_notation("h8"), Some(63));
+        // assert_eq!(ChessBoard::square_from_notation("dan"), None);
+        // assert_eq!(ChessBoard::square_from_notation("123"), None);
+        // assert_eq!(ChessBoard::square_from_notation(""), None);
     }
 }
