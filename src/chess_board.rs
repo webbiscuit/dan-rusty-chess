@@ -10,12 +10,13 @@ pub type FileIndex = u32;
 pub type RankIndex = u32;
 
 pub struct ChessBoard {
-    board: [Option<char>; 64],
+    board: [Option<Piece>; 64],
 }
 
 impl ChessBoard {
     pub fn new() -> ChessBoard {
-        ChessBoard { board: [None; 64] }
+        const INIT: Option<Piece> = None;
+        ChessBoard { board: [INIT; 64] }
     }
     pub fn from_fen(fen: &str) -> ChessBoard {
         let mut board = ChessBoard::new();
@@ -35,14 +36,15 @@ impl ChessBoard {
                 file = 0;
             } else {
                 let ix = ChessBoard::square_from_file_and_rank(file, rank).unwrap();
-                board.board[ix as usize] = Some(piece_placement);
+                let piece = Piece::new(piece_placement);
+                board.board[ix as usize] = Some(piece);
                 file += 1;
             }
         }
 
         board
     }
-    fn get_rank(&self, rank: usize) -> &[Option<char>] {
+    fn get_pieces_on_rank(&self, rank: usize) -> &[Option<Piece>] {
         let start = (rank - 1) * 8;
         &self.board[start..start + 8]
     }
@@ -54,19 +56,26 @@ impl ChessBoard {
 
         for rank in (1..=8).rev() {
             output.push_str(&format!("{} ", rank));
-            for (i, square) in self.get_rank(rank).iter().enumerate() {
-                let piece = Piece::new(square.unwrap_or_default());
-                let piece_symbol = &format!("{} ", piece.get_graphic());
-                let piece_symbol = if piece.is_black() {
-                    piece_symbol.truecolor(0, 0, 0)
+            for (i, piece) in self.get_pieces_on_rank(rank).iter().enumerate() {
+                let coloured_symbol: ColoredString;
+
+                if let Some(piece) = piece {
+                    let piece_symbol = &format!("{} ", piece.get_graphic());
+                    let piece_symbol = if piece.is_black() {
+                        piece_symbol.truecolor(0, 0, 0)
+                    } else {
+                        piece_symbol.truecolor(240, 240, 240)
+                    };
+                    coloured_symbol = piece_symbol;
                 } else {
-                    piece_symbol.truecolor(240, 240, 240)
-                };
+                    let piece_symbol = &format!("{} ", " ");
+                    coloured_symbol = piece_symbol.white();
+                }
 
                 if (i + rank) % 2 == 0 {
-                    output.push_str(&format!("{}", piece_symbol.on_truecolor(168, 123, 80)));
+                    output.push_str(&format!("{}", coloured_symbol.on_truecolor(168, 123, 80)));
                 } else {
-                    output.push_str(&format!("{}", piece_symbol.on_truecolor(100, 70, 25)));
+                    output.push_str(&format!("{}", coloured_symbol.on_truecolor(100, 70, 25)));
                 }
             }
             output.push_str(&format!(" {} ", rank));
@@ -131,12 +140,6 @@ impl ChessBoard {
         // let mut moves: Vec<ChessMove> = Vec::new();
         // moves.push(ChessMove::new(1));
         // return moves;
-    }
-}
-
-impl Default for ChessBoard {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
