@@ -50,6 +50,9 @@ impl ChessBoard {
 
         board
     }
+    fn get_piece(&self, square_index: SquareIndex) -> &Option<Piece> {
+        &self.board[square_index as usize]
+    }
     fn get_pieces_on_rank(&self, rank: usize) -> &[Option<Piece>] {
         let start = (rank - 1) * TOTAL_FILES as usize;
         &self.board[start..start + TOTAL_FILES as usize]
@@ -137,15 +140,12 @@ impl ChessBoard {
     }
 
     pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
-        // let mover = StraightSlidingMoves {};
-
-        // StraightSlidingMoves::generate_moves(self, index)
-        DiagonalSlidingMoves::generate_moves(self, index)
-
-        // mover.generate_moves(self, index);
-        // let mut moves: Vec<ChessMove> = Vec::new();
-        // moves.push(ChessMove::new(1));
-        // return moves;
+        if let Some(piece) = self.get_piece(index) {
+            let piece_moves = piece.generate_moves(self, index);
+            piece_moves
+        } else {
+            vec![]
+        }
     }
 }
 
