@@ -1,4 +1,3 @@
-King Moves
 Knight Moves
 Pawn Moves
 Checks
