@@ -25,7 +25,7 @@ where
 
     let main_chunks = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Length(24), Constraint::Min(12)].as_ref())
+        .constraints([Constraint::Length(23), Constraint::Min(12)].as_ref())
         .split(chunks[1]);
 
     // Add widgets
@@ -125,12 +125,14 @@ fn draw_chessboard(chessboard: &ChessBoard) -> Paragraph {
                 Style::default().fg(piece_colour).bg(square_colour),
             ));
         }
+        board_line.push(Span::raw(format!(" {}", rank)));
 
         board_lines.push(Spans::from(board_line));
     }
+    board_lines.push(Spans::from(vec![Span::raw("  a b c d e f g h")]));
 
     let chessboard_ui = Paragraph::new(board_lines)
-        .alignment(Alignment::Center)
+        .alignment(Alignment::Left)
         .block(
             Block::default()
                 .borders(Borders::ALL)
