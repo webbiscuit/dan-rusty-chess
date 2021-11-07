@@ -1,5 +1,4 @@
 use crate::{chess_move::ChessMove, piece::Piece};
-use colored::*;
 use std::str;
 
 pub type SquareIndex = u8;
@@ -49,62 +48,62 @@ impl ChessBoard {
 
         board
     }
-    fn get_piece(&self, square_index: SquareIndex) -> &Option<Piece> {
+    pub fn get_piece(&self, square_index: SquareIndex) -> &Option<Piece> {
         &self.board[square_index as usize]
     }
-    fn get_pieces_on_rank(&self, rank: usize) -> &[Option<Piece>] {
+    pub fn get_pieces_on_rank(&self, rank: usize) -> &[Option<Piece>] {
         let start = (rank - 1) * TOTAL_FILES as usize;
         &self.board[start..start + TOTAL_FILES as usize]
     }
 
-    pub fn draw(&self) -> String {
-        let mut output: String = format!("");
+    // pub fn draw(&self) -> String {
+    //     let mut output: String = format!("");
 
-        output.push_str("  a b c d e f g h\n");
+    //     output.push_str("  a b c d e f g h\n");
 
-        for rank in (1..=TOTAL_RANKS).rev() {
-            output.push_str(&format!("{} ", rank));
-            for (i, piece) in self.get_pieces_on_rank(rank.into()).iter().enumerate() {
-                let coloured_symbol: ColoredString;
+    //     for rank in (1..=TOTAL_RANKS).rev() {
+    //         output.push_str(&format!("{} ", rank));
+    //         for (i, piece) in self.get_pieces_on_rank(rank.into()).iter().enumerate() {
+    //             let coloured_symbol: ColoredString;
 
-                if let Some(piece) = piece {
-                    let piece_symbol = &format!("{} ", piece.get_graphic());
-                    let piece_symbol = if piece.is_black() {
-                        piece_symbol.truecolor(0, 0, 0)
-                    } else {
-                        piece_symbol.truecolor(240, 240, 240)
-                    };
-                    coloured_symbol = piece_symbol;
-                } else {
-                    let piece_symbol = &format!("{} ", " ");
-                    coloured_symbol = piece_symbol.white();
-                }
+    //             if let Some(piece) = piece {
+    //                 let piece_symbol = &format!("{} ", piece.get_graphic());
+    //                 let piece_symbol = if piece.is_black() {
+    //                     piece_symbol.truecolor(0, 0, 0)
+    //                 } else {
+    //                     piece_symbol.truecolor(240, 240, 240)
+    //                 };
+    //                 coloured_symbol = piece_symbol;
+    //             } else {
+    //                 let piece_symbol = &format!("{} ", " ");
+    //                 coloured_symbol = piece_symbol.white();
+    //             }
 
-                let square_index: SquareIndex =
-                    ChessBoard::square_from_file_and_rank(i as u8, rank - 1).unwrap();
-                if (i + (rank as usize)) % 2 == 0 {
-                    if self.is_highlit(square_index) {
-                        output
-                            .push_str(&format!("{}", coloured_symbol.on_truecolor(255, 189, 123)));
-                    } else {
-                        output.push_str(&format!("{}", coloured_symbol.on_truecolor(168, 123, 80)));
-                    }
-                } else {
-                    if self.is_highlit(square_index) {
-                        output.push_str(&format!("{}", coloured_symbol.on_truecolor(240, 179, 64)));
-                    } else {
-                        output.push_str(&format!("{}", coloured_symbol.on_truecolor(100, 70, 25)));
-                    }
-                }
-            }
-            output.push_str(&format!(" {} ", rank));
+    //             let square_index: SquareIndex =
+    //                 ChessBoard::square_from_file_and_rank(i as u8, rank - 1).unwrap();
+    //             if (i + (rank as usize)) % 2 == 0 {
+    //                 if self.is_highlit(square_index) {
+    //                     output
+    //                         .push_str(&format!("{}", coloured_symbol.on_truecolor(255, 189, 123)));
+    //                 } else {
+    //                     output.push_str(&format!("{}", coloured_symbol.on_truecolor(168, 123, 80)));
+    //                 }
+    //             } else {
+    //                 if self.is_highlit(square_index) {
+    //                     output.push_str(&format!("{}", coloured_symbol.on_truecolor(240, 179, 64)));
+    //                 } else {
+    //                     output.push_str(&format!("{}", coloured_symbol.on_truecolor(100, 70, 25)));
+    //                 }
+    //             }
+    //         }
+    //         output.push_str(&format!(" {} ", rank));
 
-            output += "\n";
-        }
-        output.push_str("  a b c d e f g h");
+    //         output += "\n";
+    //     }
+    //     output.push_str("  a b c d e f g h");
 
-        output
-    }
+    //     output
+    // }
 
     pub fn square_from_notation(notation: &str) -> Option<SquareIndex> {
         let files = "abcdefgh";
@@ -201,12 +200,5 @@ mod tests {
     fn test_to_and_from_file_ranks() {
         let square = ChessBoard::square_from_file_and_rank(1, 1).unwrap();
         assert_eq!("b2", ChessBoard::square_to_notation(square).unwrap());
-        // assert_eq!(ChessBoard::square_from_notation("a1"), Some(0));
-        // assert_eq!(ChessBoard::square_from_notation("a8"), Some(56));
-        // assert_eq!(ChessBoard::square_from_notation("h1"), Some(7));
-        // assert_eq!(ChessBoard::square_from_notation("h8"), Some(63));
-        // assert_eq!(ChessBoard::square_from_notation("dan"), None);
-        // assert_eq!(ChessBoard::square_from_notation("123"), None);
-        // assert_eq!(ChessBoard::square_from_notation(""), None);
     }
 }
