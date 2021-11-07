@@ -8,7 +8,12 @@ fn main() {
     // let chess_board = chess_board::ChessBoard::from_fen(
     //     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     // );
-    let chess_board = ChessBoard::from_fen("8/1b6/8/8/8/8/8/8 w KQkq - 0 1");
+    // let chess_board = ChessBoard::from_fen("8/1b6/8/8/8/8/8/8 w KQkq - 0 1");
+    let mut chess_board =
+        chess_board::ChessBoard::from_fen("r1bqkb1r/8/8/8/8/8/8/R1BQKB1R w KQkq - 0 1");
+    // chess_board.highlight_square(11, true);
+    // chess_board.highlight_square(12, true);
+
     let ui = chess_board.draw();
 
     println!("♞  Dan's Rusty Chess ♞\n");

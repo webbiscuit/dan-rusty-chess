@@ -12,6 +12,7 @@ pub const TOTAL_SQUARES: SquareIndex = TOTAL_RANKS * TOTAL_FILES;
 
 pub struct ChessBoard {
     board: [Option<Piece>; TOTAL_SQUARES as usize],
+    highlit: [bool; TOTAL_SQUARES as usize],
 }
 
 impl ChessBoard {
@@ -19,6 +20,7 @@ impl ChessBoard {
         const INIT: Option<Piece> = None;
         ChessBoard {
             board: [INIT; TOTAL_SQUARES as usize],
+            highlit: [false; TOTAL_SQUARES as usize],
         }
     }
     pub fn from_fen(fen: &str) -> ChessBoard {
@@ -78,10 +80,21 @@ impl ChessBoard {
                     coloured_symbol = piece_symbol.white();
                 }
 
+                let square_index: SquareIndex =
+                    ChessBoard::square_from_file_and_rank(i as u8, rank - 1).unwrap();
                 if (i + (rank as usize)) % 2 == 0 {
-                    output.push_str(&format!("{}", coloured_symbol.on_truecolor(168, 123, 80)));
+                    if self.is_highlit(square_index) {
+                        output
+                            .push_str(&format!("{}", coloured_symbol.on_truecolor(255, 189, 123)));
+                    } else {
+                        output.push_str(&format!("{}", coloured_symbol.on_truecolor(168, 123, 80)));
+                    }
                 } else {
-                    output.push_str(&format!("{}", coloured_symbol.on_truecolor(100, 70, 25)));
+                    if self.is_highlit(square_index) {
+                        output.push_str(&format!("{}", coloured_symbol.on_truecolor(240, 179, 64)));
+                    } else {
+                        output.push_str(&format!("{}", coloured_symbol.on_truecolor(100, 70, 25)));
+                    }
                 }
             }
             output.push_str(&format!(" {} ", rank));
@@ -143,6 +156,18 @@ impl ChessBoard {
         } else {
             vec![]
         }
+    }
+
+    pub fn reset_highlights(&mut self) {
+        self.highlit = [false; TOTAL_SQUARES as usize];
+    }
+
+    pub fn highlight_square(&mut self, index: SquareIndex, highlight: bool) {
+        self.highlit[index as usize] = highlight;
+    }
+
+    fn is_highlit(&self, index: SquareIndex) -> bool {
+        self.highlit[index as usize]
     }
 }
 
