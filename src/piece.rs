@@ -3,12 +3,9 @@ use crate::{
     chess_move::{ChessMove, DiagonalSlidingMoves, MoveGenerator, StraightSlidingMoves},
 };
 
-type FnPtr = fn(chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove>;
-
-#[derive(Clone)]
 pub struct Piece {
     symbol: char,
-    move_generators: Vec<FnPtr>,
+    move_generators: Vec<Box<dyn MoveGenerator>>,
 }
 
 impl Piece {
@@ -36,16 +33,19 @@ impl Piece {
             _ => ' ',
         }
     }
-    fn get_move_generators(symbol: char) -> Vec<FnPtr> {
+    fn get_move_generators(symbol: char) -> Vec<Box<dyn MoveGenerator>> {
         match symbol {
-            'R' | 'r' => vec![StraightSlidingMoves::generate_moves],
+            'R' | 'r' => vec![Box::new(StraightSlidingMoves::new(7))],
             'N' | 'n' => vec![],
-            'B' | 'b' => vec![DiagonalSlidingMoves::generate_moves],
+            'B' | 'b' => vec![Box::new(DiagonalSlidingMoves::new(7))],
             'Q' | 'q' => vec![
-                StraightSlidingMoves::generate_moves,
-                DiagonalSlidingMoves::generate_moves,
+                Box::new(StraightSlidingMoves::new(7)),
+                Box::new(DiagonalSlidingMoves::new(7)),
             ],
-            'K' | 'k' => vec![],
+            'K' | 'k' => vec![
+                Box::new(StraightSlidingMoves::new(1)),
+                Box::new(DiagonalSlidingMoves::new(1)),
+            ],
             'P' | 'p' => vec![],
 
             _ => vec![],
@@ -62,7 +62,7 @@ impl Piece {
     ) -> Vec<ChessMove> {
         let mut moves: Vec<ChessMove> = Vec::new();
         for move_generator in &self.move_generators {
-            moves.append(&mut (move_generator)(chess_board, source));
+            moves.append(&mut move_generator.generate_moves(chess_board, source));
         }
         moves
     }

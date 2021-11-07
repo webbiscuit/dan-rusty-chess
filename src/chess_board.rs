@@ -1,7 +1,4 @@
-use crate::{
-    chess_move::{ChessMove, DiagonalSlidingMoves, MoveGenerator},
-    piece::Piece,
-};
+use crate::{chess_move::ChessMove, piece::Piece};
 use colored::*;
 use std::str;
 
@@ -9,9 +6,9 @@ pub type SquareIndex = u8;
 pub type FileIndex = u8;
 pub type RankIndex = u8;
 
-const TOTAL_RANKS: RankIndex = 8;
-const TOTAL_FILES: FileIndex = 8;
-const TOTAL_SQUARES: SquareIndex = TOTAL_RANKS * TOTAL_FILES;
+pub const TOTAL_RANKS: RankIndex = 8;
+pub const TOTAL_FILES: FileIndex = 8;
+pub const TOTAL_SQUARES: SquareIndex = TOTAL_RANKS * TOTAL_FILES;
 
 pub struct ChessBoard {
     board: [Option<Piece>; TOTAL_SQUARES as usize],
