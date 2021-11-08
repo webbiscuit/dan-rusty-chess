@@ -2,16 +2,34 @@
 
 Learning Rust and chessing.
 
-![Pieces all over the place on and around a chess board](docs/screenshot.PNG "Chess Game in Unity")
+![Pieces all over the place on and around a chess board](docs/screenshot.PNG "Chess Game in Rust terminal")
 
 ## Features
 
+- Incredible terminal interface
 - Read from [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)
+- Highlight available moves for a piece
+- Loads of weird bugs
 
 
 ## Tech
 
 - Rust
+- tui (terminal ui)
+
+## Dev
+
+### Building
+
+`cargo build`
+
+### Testing
+
+`cargo test`
+
+### Code coverage
+
+`cargo tarpaulin`
 
 ## Resources
 
