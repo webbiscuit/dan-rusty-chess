@@ -150,8 +150,7 @@ impl ChessBoard {
 
     pub fn generate_moves(&self, index: SquareIndex) -> Vec<ChessMove> {
         if let Some(piece) = self.get_piece(index) {
-            let piece_moves = piece.generate_moves(self, index);
-            piece_moves
+            piece.generate_moves(self, index)
         } else {
             vec![]
         }

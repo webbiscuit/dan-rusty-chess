@@ -110,16 +110,16 @@ fn draw_chessboard(chessboard: &ChessBoard) -> Paragraph {
             let square_index: SquareIndex =
                 ChessBoard::square_from_file_and_rank(i as u8, rank - 1).unwrap();
             if (i + (rank as usize)) % 2 == 0 {
-                if chessboard.is_highlit(square_index) {
-                    square_colour = Color::Rgb(255, 189, 123);
+                square_colour = if chessboard.is_highlit(square_index) {
+                    Color::Rgb(255, 189, 123)
                 } else {
-                    square_colour = Color::Rgb(168, 123, 80);
+                    Color::Rgb(168, 123, 80)
                 }
             } else {
-                if chessboard.is_highlit(square_index) {
-                    square_colour = Color::Rgb(240, 179, 64);
+                square_colour = if chessboard.is_highlit(square_index) {
+                    Color::Rgb(240, 179, 64)
                 } else {
-                    square_colour = Color::Rgb(100, 70, 25);
+                    Color::Rgb(100, 70, 25)
                 }
             }
 

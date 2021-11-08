@@ -54,7 +54,7 @@ pub fn start_ui() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             if last_tick.elapsed() >= tick_rate {
-                if let Ok(_) = tx.send(Event::Tick) {
+                if tx.send(Event::Tick).is_ok() {
                     last_tick = Instant::now();
                 }
             }

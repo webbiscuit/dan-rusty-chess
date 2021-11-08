@@ -47,10 +47,10 @@ impl MoveGenerator for StraightSlidingMoves {
                     rank.try_into().unwrap(),
                 );
 
-                if destination.is_some() {
+                if let Some(destination) = destination {
                     let chess_move = ChessMove {
                         source,
-                        destination: destination.unwrap(),
+                        destination,
                     };
 
                     moves.push(chess_move);
@@ -98,10 +98,10 @@ impl MoveGenerator for DiagonalSlidingMoves {
                     rank.try_into().unwrap(),
                 );
 
-                if destination.is_some() {
+                if let Some(destination) = destination {
                     let chess_move = ChessMove {
                         source,
-                        destination: destination.unwrap(),
+                        destination,
                     };
 
                     moves.push(chess_move);
