@@ -85,7 +85,7 @@ pub fn start_ui() -> Result<(), Box<dyn std::error::Error>> {
 
                         moves.iter().for_each(|m| {
                             chessboard.highlight_square(m.destination, true);
-                            app.add_available_move(&m);
+                            app.add_available_move(m);
                         });
                     }
                 }

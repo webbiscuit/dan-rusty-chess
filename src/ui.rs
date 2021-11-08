@@ -1,5 +1,5 @@
 use tui::backend::Backend;
-use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
+use tui::layout::{Alignment, Constraint, Direction, Layout};
 use tui::style::{Color, Style};
 use tui::text::{Span, Spans};
 use tui::widgets::{Block, BorderType, Borders, Paragraph};
@@ -104,7 +104,7 @@ fn draw_chessboard(chessboard: &ChessBoard) -> Paragraph {
                     Color::White
                 };
             } else {
-                piece_symbol = format!("  ");
+                piece_symbol = "  ".to_string();
             }
 
             let square_index: SquareIndex =
@@ -146,11 +146,11 @@ fn draw_chessboard(chessboard: &ChessBoard) -> Paragraph {
     chessboard_ui
 }
 
-fn check_size(rect: &Rect) {
-    if rect.width < 52 {
-        panic!("Require width >= 52, (got {})", rect.width);
-    }
-    if rect.height < 10 {
-        panic!("Require height >= 28, (got {})", rect.height);
-    }
-}
+// fn check_size(rect: &Rect) {
+//     if rect.width < 52 {
+//         panic!("Require width >= 52, (got {})", rect.width);
+//     }
+//     if rect.height < 10 {
+//         panic!("Require height >= 28, (got {})", rect.height);
+//     }
+// }
