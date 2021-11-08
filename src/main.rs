@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 pub fn start_ui() -> Result<(), Box<dyn std::error::Error>> {
-    let chessboard =
+    let mut chessboard =
         chess_board::ChessBoard::from_fen("r1bqkb1r/8/8/8/8/8/8/R1BQKB1R w KQkq - 0 1");
     let mut app = App::new();
 
@@ -75,7 +75,19 @@ pub fn start_ui() -> Result<(), Box<dyn std::error::Error>> {
                     app.input.pop();
                 }
                 (event::KeyModifiers::NONE, KeyCode::Enter) => {
-                    app.input.drain(..); //.collect();
+                    let square_notation = app.input.clone();
+                    app.clear_input();
+                    chessboard.reset_highlights();
+                    // app.input.clear();
+
+                    if let Some(square) = ChessBoard::square_from_notation(&square_notation) {
+                        let moves = chessboard.generate_moves(square);
+
+                        moves.iter().for_each(|m| {
+                            chessboard.highlight_square(m.destination, true);
+                            app.add_available_move(&m);
+                        });
+                    }
                 }
                 (event::KeyModifiers::NONE, KeyCode::Char(c)) => {
                     app.input.push(c);

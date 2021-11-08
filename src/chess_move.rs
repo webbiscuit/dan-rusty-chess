@@ -1,5 +1,7 @@
 use crate::chess_board::{ChessBoard, SquareIndex, TOTAL_FILES, TOTAL_RANKS};
 
+#[derive(Clone, Copy)]
+
 pub struct ChessMove {
     pub source: SquareIndex,
     pub destination: SquareIndex,

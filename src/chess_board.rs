@@ -165,7 +165,7 @@ impl ChessBoard {
         self.highlit[index as usize] = highlight;
     }
 
-    fn is_highlit(&self, index: SquareIndex) -> bool {
+    pub fn is_highlit(&self, index: SquareIndex) -> bool {
         self.highlit[index as usize]
     }
 }

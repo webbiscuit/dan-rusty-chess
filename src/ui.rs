@@ -38,9 +38,7 @@ where
     rect.render_widget(user_input, main_chunks[1]);
 
     rect.set_cursor(
-        // Put cursor past the end of the input text
         main_chunks[1].x + app.input.width() as u16 + 1,
-        // Move one line down, from the border to the input line
         main_chunks[1].y + 2,
     )
 }
@@ -58,9 +56,17 @@ fn draw_title<'a>() -> Paragraph<'a> {
 }
 
 fn draw_user_input(app: &App) -> Paragraph {
+    let notationed_moves: Vec<String> = app
+        .available_moves()
+        .iter()
+        .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+        .collect();
+
     Paragraph::new(vec![
         Spans::from("Enter square to show moves: ".to_string()),
         Spans::from(app.input.to_string()),
+        Spans::from("Moves are: ".to_string()),
+        Spans::from(notationed_moves.join(",")),
     ])
     .style(Style::default().fg(Color::LightCyan))
     .alignment(Alignment::Left)
@@ -104,20 +110,17 @@ fn draw_chessboard(chessboard: &ChessBoard) -> Paragraph {
             let square_index: SquareIndex =
                 ChessBoard::square_from_file_and_rank(i as u8, rank - 1).unwrap();
             if (i + (rank as usize)) % 2 == 0 {
-                square_colour = Color::Rgb(168, 123, 80);
-                // if self.is_highlit(square_index) {
-                //     output.push_str(&format!("{}", coloured_symbol.on_truecolor(255, 189, 123)));
-                // } else {
-                // output.push_str(&format!("{}", coloured_symbol.on_truecolor(168, 123, 80)));
-                // }
+                if chessboard.is_highlit(square_index) {
+                    square_colour = Color::Rgb(255, 189, 123);
+                } else {
+                    square_colour = Color::Rgb(168, 123, 80);
+                }
             } else {
-                square_colour = Color::Rgb(100, 70, 25);
-
-                // if self.is_highlit(square_index) {
-                //     output.push_str(&format!("{}", coloured_symbol.on_truecolor(240, 179, 64)));
-                // } else {
-                // output.push_str(&format!("{}", coloured_symbol.on_truecolor(100, 70, 25)));
-                // }
+                if chessboard.is_highlit(square_index) {
+                    square_colour = Color::Rgb(240, 179, 64);
+                } else {
+                    square_colour = Color::Rgb(100, 70, 25);
+                }
             }
 
             board_line.push(Span::styled(
