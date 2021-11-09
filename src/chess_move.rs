@@ -25,27 +25,18 @@ impl MoveGenerator for StraightSlidingMoves {
 
         let (file_ix, rank_ix) = ChessBoard::square_to_file_and_rank(source);
 
-        for f in 0..=self.max_moves + 1 {
-            let delta: i8 = (f as i8) - (file_ix as i8);
+        for (df, dr) in &[(1, 0), (0, 1), (-1, 0), (0, -1)] {
+            let mut file_ix = file_ix as i8 + df;
+            let mut rank_ix = rank_ix as i8 + dr;
 
-            if delta == 0 {
-                continue;
-            }
-
-            for (df, dr) in &[(1, 0), (0, -1)] {
-                let file: i8 = (file_ix as i8) + (df * delta);
-                let rank: i8 = (rank_ix as i8) + (dr * delta);
-
-                if (rank >= (TOTAL_RANKS as i8) || rank < 0)
-                    || (file >= (TOTAL_FILES as i8) || file < 0)
-                {
-                    continue;
-                }
-
-                let destination = ChessBoard::square_from_file_and_rank(
-                    file.try_into().unwrap(),
-                    rank.try_into().unwrap(),
-                );
+            let mut count = 0;
+            while file_ix >= 0
+                && file_ix < TOTAL_FILES as i8
+                && rank_ix >= 0
+                && rank_ix < TOTAL_RANKS as i8
+            {
+                let destination =
+                    ChessBoard::square_from_file_and_rank(file_ix as u8, rank_ix as u8);
 
                 if let Some(destination) = destination {
                     let chess_move = ChessMove {
@@ -55,6 +46,13 @@ impl MoveGenerator for StraightSlidingMoves {
 
                     moves.push(chess_move);
                 }
+
+                count += 1;
+                if count == self.max_moves {
+                    break;
+                }
+                file_ix += df;
+                rank_ix += dr;
             }
         }
 
@@ -76,27 +74,18 @@ impl MoveGenerator for DiagonalSlidingMoves {
 
         let (file_ix, rank_ix) = ChessBoard::square_to_file_and_rank(source);
 
-        for f in 0..=self.max_moves + 1 {
-            let delta: i8 = (f as i8) - (file_ix as i8);
+        for (df, dr) in &[(1, 1), (-1, 1), (1, -1), (-1, -1)] {
+            let mut file_ix = file_ix as i8 + df;
+            let mut rank_ix = rank_ix as i8 + dr;
 
-            if delta == 0 {
-                continue;
-            }
-
-            for (df, dr) in &[(1, 1), (1, -1)] {
-                let file: i8 = (file_ix as i8) + (df * delta);
-                let rank: i8 = (rank_ix as i8) + (dr * delta);
-
-                if (rank >= (TOTAL_RANKS as i8) || rank < 0)
-                    || (file >= (TOTAL_FILES as i8) || file < 0)
-                {
-                    continue;
-                }
-
-                let destination = ChessBoard::square_from_file_and_rank(
-                    file.try_into().unwrap(),
-                    rank.try_into().unwrap(),
-                );
+            let mut count = 0;
+            while file_ix >= 0
+                && file_ix < TOTAL_FILES as i8
+                && rank_ix >= 0
+                && rank_ix < TOTAL_RANKS as i8
+            {
+                let destination =
+                    ChessBoard::square_from_file_and_rank(file_ix as u8, rank_ix as u8);
 
                 if let Some(destination) = destination {
                     let chess_move = ChessMove {
@@ -106,6 +95,13 @@ impl MoveGenerator for DiagonalSlidingMoves {
 
                     moves.push(chess_move);
                 }
+
+                count += 1;
+                if count == self.max_moves {
+                    break;
+                }
+                file_ix += df;
+                rank_ix += dr;
             }
         }
 
@@ -118,9 +114,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_rook_moves() {
-        let chess_board = ChessBoard::from_fen("8/1r6/8/8/8/8/8/8 w KQkq - 0 1");
-        let square = ChessBoard::square_from_notation("b7").unwrap();
+    fn test_rook_moves_from_a8() {
+        let chess_board = ChessBoard::from_fen("r7/8/8/8/8/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("a8").unwrap();
         let moves = chess_board.generate_moves(square);
 
         let mut notationed_moves: Vec<String> = moves
@@ -130,7 +126,7 @@ mod tests {
 
         notationed_moves.sort();
         let mut expected_moves = vec![
-            "a7", "c7", "d7", "e7", "f7", "g7", "h7", "b1", "b2", "b3", "b4", "b5", "b6", "b8",
+            "b8", "c8", "d8", "e8", "f8", "g8", "h8", "a7", "a6", "a5", "a4", "a3", "a2", "a1",
         ];
         expected_moves.sort();
 
@@ -138,9 +134,9 @@ mod tests {
     }
 
     #[test]
-    fn test_bishop_moves() {
-        let chess_board = ChessBoard::from_fen("8/1b6/8/8/8/8/8/8 w KQkq - 0 1");
-        let square = ChessBoard::square_from_notation("b7").unwrap();
+    fn test_rook_moves_from_a1() {
+        let chess_board = ChessBoard::from_fen("8/8/8/8/8/8/8/r7 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("a1").unwrap();
         let moves = chess_board.generate_moves(square);
 
         let mut notationed_moves: Vec<String> = moves
@@ -149,7 +145,121 @@ mod tests {
             .collect();
 
         notationed_moves.sort();
-        let mut expected_moves = vec!["a8", "c6", "d5", "e4", "f3", "g2", "h1", "c8", "a6"];
+        let mut expected_moves = vec![
+            "b1", "c1", "d1", "e1", "f1", "g1", "h1", "a2", "a3", "a4", "a5", "a6", "a7", "a8",
+        ];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_rook_moves_from_h8() {
+        let chess_board = ChessBoard::from_fen("7r/8/8/8/8/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("h8").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec![
+            "g8", "f8", "e8", "d8", "c8", "b8", "a8", "h7", "h6", "h5", "h4", "h3", "h2", "h1",
+        ];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_rook_moves_from_h1() {
+        let chess_board = ChessBoard::from_fen("8/8/8/8/8/8/8/7r w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("h1").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec![
+            "g1", "f1", "e1", "d1", "c1", "b1", "a1", "h2", "h3", "h4", "h5", "h6", "h7", "h8",
+        ];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_bishop_moves_from_a8() {
+        let chess_board = ChessBoard::from_fen("b7/8/8/8/8/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("a8").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["b7", "c6", "d5", "e4", "f3", "g2", "h1"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_bishop_moves_from_h8() {
+        let chess_board = ChessBoard::from_fen("7b/8/8/8/8/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("h8").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["g7", "f6", "e5", "d4", "c3", "b2", "a1"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_bishop_moves_from_a1() {
+        let chess_board = ChessBoard::from_fen("8/8/8/8/8/8/8/b7 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("a1").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["b2", "c3", "d4", "e5", "f6", "g7", "h8"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_bishop_moves_from_h1() {
+        let chess_board = ChessBoard::from_fen("8/8/8/8/8/8/8/7b w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("h1").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["g2", "f3", "e4", "d5", "c6", "b7", "a8"];
         expected_moves.sort();
 
         assert_eq!(notationed_moves, expected_moves)
@@ -168,6 +278,42 @@ mod tests {
 
         notationed_moves.sort();
         let mut expected_moves = vec!["a6", "a7", "a8", "b6", "b8", "c6", "c7", "c8"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_king_moves_from_e1() {
+        let chess_board = ChessBoard::from_fen("8/8/8/8/8/8/8/4K3 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("e1").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["d1", "d2", "e2", "f2", "f1"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_king_moves_from_e8() {
+        let chess_board = ChessBoard::from_fen("4k3/8/8/8/8/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("e8").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["d8", "f8", "d7", "e7", "f7"];
         expected_moves.sort();
 
         assert_eq!(notationed_moves, expected_moves)
