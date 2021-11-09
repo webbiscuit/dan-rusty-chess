@@ -23,7 +23,7 @@ impl MoveGenerator for StraightSlidingMoves {
     fn generate_moves(&self, _chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
         static DIRECTIONS: [(i8, i8); 4] = [(1, 0), (0, 1), (-1, 0), (0, -1)];
 
-        generate_moves(source, self.max_moves, &DIRECTIONS)
+        generate_sliding_moves(source, self.max_moves, &DIRECTIONS)
     }
 }
 
@@ -39,11 +39,11 @@ impl MoveGenerator for DiagonalSlidingMoves {
     fn generate_moves(&self, _chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
         static DIRECTIONS: [(i8, i8); 4] = [(1, 1), (1, -1), (-1, 1), (-1, -1)];
 
-        generate_moves(source, self.max_moves, &DIRECTIONS)
+        generate_sliding_moves(source, self.max_moves, &DIRECTIONS)
     }
 }
 
-fn generate_moves(source: u8, max_moves: u8, directions: &[(i8, i8)]) -> Vec<ChessMove> {
+fn generate_sliding_moves(source: u8, max_moves: u8, directions: &[(i8, i8)]) -> Vec<ChessMove> {
     let mut moves: Vec<ChessMove> = Vec::new();
     let (file_ix, rank_ix) = ChessBoard::square_to_file_and_rank(source);
 
