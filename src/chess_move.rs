@@ -21,42 +21,9 @@ impl StraightSlidingMoves {
 }
 impl MoveGenerator for StraightSlidingMoves {
     fn generate_moves(&self, _chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
-        let mut moves: Vec<ChessMove> = Vec::new();
+        static DIRECTIONS: [(i8, i8); 4] = [(1, 0), (0, 1), (-1, 0), (0, -1)];
 
-        let (file_ix, rank_ix) = ChessBoard::square_to_file_and_rank(source);
-
-        for (df, dr) in &[(1, 0), (0, 1), (-1, 0), (0, -1)] {
-            let mut file_ix = file_ix as i8 + df;
-            let mut rank_ix = rank_ix as i8 + dr;
-
-            let mut count = 0;
-            while file_ix >= 0
-                && file_ix < TOTAL_FILES as i8
-                && rank_ix >= 0
-                && rank_ix < TOTAL_RANKS as i8
-            {
-                let destination =
-                    ChessBoard::square_from_file_and_rank(file_ix as u8, rank_ix as u8);
-
-                if let Some(destination) = destination {
-                    let chess_move = ChessMove {
-                        source,
-                        destination,
-                    };
-
-                    moves.push(chess_move);
-                }
-
-                count += 1;
-                if count == self.max_moves {
-                    break;
-                }
-                file_ix += df;
-                rank_ix += dr;
-            }
-        }
-
-        moves
+        generate_moves(source, self.max_moves, &DIRECTIONS)
     }
 }
 
@@ -70,43 +37,46 @@ impl DiagonalSlidingMoves {
 }
 impl MoveGenerator for DiagonalSlidingMoves {
     fn generate_moves(&self, _chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
-        let mut moves: Vec<ChessMove> = Vec::new();
+        static DIRECTIONS: [(i8, i8); 4] = [(1, 1), (1, -1), (-1, 1), (-1, -1)];
 
-        let (file_ix, rank_ix) = ChessBoard::square_to_file_and_rank(source);
-
-        for (df, dr) in &[(1, 1), (-1, 1), (1, -1), (-1, -1)] {
-            let mut file_ix = file_ix as i8 + df;
-            let mut rank_ix = rank_ix as i8 + dr;
-
-            let mut count = 0;
-            while file_ix >= 0
-                && file_ix < TOTAL_FILES as i8
-                && rank_ix >= 0
-                && rank_ix < TOTAL_RANKS as i8
-            {
-                let destination =
-                    ChessBoard::square_from_file_and_rank(file_ix as u8, rank_ix as u8);
-
-                if let Some(destination) = destination {
-                    let chess_move = ChessMove {
-                        source,
-                        destination,
-                    };
-
-                    moves.push(chess_move);
-                }
-
-                count += 1;
-                if count == self.max_moves {
-                    break;
-                }
-                file_ix += df;
-                rank_ix += dr;
-            }
-        }
-
-        moves
+        generate_moves(source, self.max_moves, &DIRECTIONS)
     }
+}
+
+fn generate_moves(source: u8, max_moves: u8, directions: &[(i8, i8)]) -> Vec<ChessMove> {
+    let mut moves: Vec<ChessMove> = Vec::new();
+    let (file_ix, rank_ix) = ChessBoard::square_to_file_and_rank(source);
+
+    for (df, dr) in directions {
+        let mut file_ix = file_ix as i8 + df;
+        let mut rank_ix = rank_ix as i8 + dr;
+
+        let mut count = 0;
+        while file_ix >= 0
+            && file_ix < TOTAL_FILES as i8
+            && rank_ix >= 0
+            && rank_ix < TOTAL_RANKS as i8
+        {
+            let destination = ChessBoard::square_from_file_and_rank(file_ix as u8, rank_ix as u8);
+
+            if let Some(destination) = destination {
+                let chess_move = ChessMove {
+                    source,
+                    destination,
+                };
+
+                moves.push(chess_move);
+            }
+
+            count += 1;
+            if count == max_moves {
+                break;
+            }
+            file_ix += df;
+            rank_ix += dr;
+        }
+    }
+    moves
 }
 
 #[cfg(test)]
