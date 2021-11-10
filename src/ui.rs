@@ -38,7 +38,7 @@ where
     rect.render_widget(user_input, main_chunks[1]);
 
     rect.set_cursor(
-        main_chunks[1].x + app.input.width() as u16 + 1,
+        main_chunks[1].x + app.ui_buffer.width() as u16 + 1,
         main_chunks[1].y + 2,
     )
 }
@@ -56,26 +56,34 @@ fn draw_title<'a>() -> Paragraph<'a> {
 }
 
 fn draw_user_input(app: &App) -> Paragraph {
-    let notationed_moves: Vec<String> = app
-        .available_moves()
-        .iter()
-        .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
-        .collect();
-
-    Paragraph::new(vec![
+    let mut ui_texts = vec![
         Spans::from("Enter square to show moves: ".to_string()),
-        Spans::from(app.input.to_string()),
-        Spans::from("Moves are: ".to_string()),
-        Spans::from(notationed_moves.join(",")),
-    ])
-    .style(Style::default().fg(Color::LightCyan))
-    .alignment(Alignment::Left)
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
-            .border_type(BorderType::Plain),
-    )
+        Spans::from(app.ui_buffer.to_string()),
+    ];
+
+    if let Some(square) = app.get_selected_square() {
+        let notationed_moves: Vec<String> = app
+            .available_moves()
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+        let text = format!(
+            "Moves for {} are: ",
+            ChessBoard::square_to_notation(square).unwrap()
+        );
+        ui_texts.push(Spans::from(text));
+        ui_texts.push(Spans::from(notationed_moves.join(",")));
+    }
+
+    Paragraph::new(ui_texts)
+        .style(Style::default().fg(Color::LightCyan))
+        .alignment(Alignment::Left)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .style(Style::default().fg(Color::White))
+                .border_type(BorderType::Plain),
+        )
 }
 
 fn draw_chessboard(chessboard: &ChessBoard) -> Paragraph {

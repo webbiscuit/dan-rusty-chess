@@ -7,6 +7,7 @@ mod chess_move;
 mod piece;
 mod ui;
 
+// use clap::App as ClapApp;
 use crossterm::{
     event::{self, Event as CEvent, KeyCode},
     terminal::{disable_raw_mode, enable_raw_mode},
@@ -23,12 +24,26 @@ enum Event<I> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    start_ui()
+    let matches = clap::App::new(env!("CARGO_PKG_NAME"))
+        .about("♞  Dan's Rusty Chess ♞")
+        .arg(
+            clap::Arg::with_name("fen")
+                .short("f")
+                .long("fen")
+                .help("Start game with fen string")
+                .takes_value(true),
+        )
+        .get_matches();
+
+    let fen = matches
+        .value_of("fen")
+        .unwrap_or("r1bqkb1r/8/8/8/8/8/8/R1BQKB1R w KQkq - 0 1");
+
+    start_ui(fen)
 }
 
-pub fn start_ui() -> Result<(), Box<dyn std::error::Error>> {
-    let mut chessboard =
-        chess_board::ChessBoard::from_fen("r1bqkb1r/8/8/8/8/8/8/R1BQKB1R w KQkq - 0 1");
+pub fn start_ui(fen: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut chessboard = chess_board::ChessBoard::from_fen(fen);
     let mut app = App::new();
 
     // Configure Crossterm backend for tui
@@ -72,16 +87,17 @@ pub fn start_ui() -> Result<(), Box<dyn std::error::Error>> {
                     break;
                 }
                 (event::KeyModifiers::NONE, KeyCode::Backspace) => {
-                    app.input.pop();
+                    app.ui_buffer.pop();
                 }
                 (event::KeyModifiers::NONE, KeyCode::Enter) => {
-                    let square_notation = app.input.clone();
+                    let square_notation = app.ui_buffer.clone();
                     app.clear_input();
                     chessboard.reset_highlights();
                     // app.input.clear();
 
                     if let Some(square) = ChessBoard::square_from_notation(&square_notation) {
                         let moves = chessboard.generate_moves(square);
+                        app.set_selected_square(square);
 
                         moves.iter().for_each(|m| {
                             chessboard.highlight_square(m.destination, true);
@@ -90,7 +106,7 @@ pub fn start_ui() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 }
                 (event::KeyModifiers::NONE, KeyCode::Char(c)) => {
-                    app.input.push(c);
+                    app.ui_buffer.push(c);
                 }
                 _ => {}
             },

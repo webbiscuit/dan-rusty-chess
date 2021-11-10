@@ -1,15 +1,17 @@
-use crate::chess_move::ChessMove;
+use crate::{chess_board::SquareIndex, chess_move::ChessMove};
 
 pub struct App {
-    pub input: String,
+    pub ui_buffer: String,
     available_moves: Vec<ChessMove>,
+    selected_square: Option<SquareIndex>,
 }
 
 impl App {
     pub fn new() -> Self {
         App {
-            input: String::new(),
+            ui_buffer: String::new(),
             available_moves: Vec::new(),
+            selected_square: None,
         }
     }
 
@@ -22,7 +24,16 @@ impl App {
     }
 
     pub fn clear_input(&mut self) {
-        self.input.clear();
+        self.ui_buffer.clear();
         self.available_moves.clear();
+        self.selected_square = None;
+    }
+
+    pub fn set_selected_square(&mut self, square: u8) {
+        self.selected_square = Some(square);
+    }
+
+    pub fn get_selected_square(&self) -> Option<SquareIndex> {
+        self.selected_square
     }
 }
