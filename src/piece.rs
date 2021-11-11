@@ -1,6 +1,8 @@
 use crate::{
     chess_board::{ChessBoard, SquareIndex},
-    chess_move::{ChessMove, DiagonalSlidingMoves, MoveGenerator, StraightSlidingMoves},
+    chess_move::{
+        ChessMove, DiagonalSlidingMoves, JumpingMoves, MoveGenerator, StraightSlidingMoves,
+    },
 };
 
 pub struct Piece {
@@ -36,7 +38,7 @@ impl Piece {
     fn get_move_generators(symbol: char) -> Vec<Box<dyn MoveGenerator>> {
         match symbol {
             'R' | 'r' => vec![Box::new(StraightSlidingMoves::new(7))],
-            'N' | 'n' => vec![],
+            'N' | 'n' => vec![Box::new(JumpingMoves::new(1))],
             'B' | 'b' => vec![Box::new(DiagonalSlidingMoves::new(7))],
             'Q' | 'q' => vec![
                 Box::new(StraightSlidingMoves::new(7)),
