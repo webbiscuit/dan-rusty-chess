@@ -1,7 +1,8 @@
 use crate::{
     chess_board::{ChessBoard, SquareIndex},
     chess_move::{
-        ChessMove, DiagonalSlidingMoves, JumpingMoves, MoveGenerator, StraightSlidingMoves,
+        ChessMove, DiagonalSlidingMoves, JumpingMoves, MoveGenerator, PawnMoves,
+        StraightSlidingMoves,
     },
 };
 
@@ -48,7 +49,8 @@ impl Piece {
                 Box::new(StraightSlidingMoves::new(1)),
                 Box::new(DiagonalSlidingMoves::new(1)),
             ],
-            'P' | 'p' => vec![],
+            'P' => vec![Box::new(PawnMoves::new(1, 2))],
+            'p' => vec![Box::new(PawnMoves::new(-1, 7))],
 
             _ => vec![],
         }
