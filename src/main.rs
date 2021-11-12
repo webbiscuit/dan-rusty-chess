@@ -7,7 +7,6 @@ mod chess_move;
 mod piece;
 mod ui;
 
-// use clap::App as ClapApp;
 use crossterm::{
     event::{self, Event as CEvent, KeyCode},
     terminal::{disable_raw_mode, enable_raw_mode},
@@ -93,7 +92,6 @@ pub fn start_ui(fen: &str) -> Result<(), Box<dyn std::error::Error>> {
                     let square_notation = app.ui_buffer.clone();
                     app.clear_input();
                     chessboard.reset_highlights();
-                    // app.input.clear();
 
                     if let Some(square) = ChessBoard::square_from_notation(&square_notation) {
                         let moves = chessboard.generate_moves(square);
@@ -121,30 +119,3 @@ pub fn start_ui(fen: &str) -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
-// fn main() {
-//     // let chess_board = chess_board::ChessBoard::from_fen(
-//     //     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-//     // );
-//     // let chess_board = ChessBoard::from_fen("8/1b6/8/8/8/8/8/8 w KQkq - 0 1");
-//     let mut chess_board =
-//         chess_board::ChessBoard::from_fen("r1bqkb1r/8/8/8/8/8/8/R1BQKB1R w KQkq - 0 1");
-//     // chess_board.highlight_square(11, true);
-//     // chess_board.highlight_square(12, true);
-
-//     let ui = chess_board.draw();
-
-//     println!("♞  Dan's Rusty Chess ♞\n");
-//     println!("{}", ui);
-
-//     if let Some(square) = ChessBoard::square_from_notation("b7") {
-//         let moves = chess_board.generate_moves(square);
-
-//         let notationed_moves: Vec<String> = moves
-//             .iter()
-//             .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
-//             .collect();
-
-//         println!("{}", notationed_moves.join(","));
-//     }
-// }
