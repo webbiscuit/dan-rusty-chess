@@ -58,6 +58,9 @@ impl Piece {
     pub fn is_black(self: &Piece) -> bool {
         self.symbol.is_lowercase()
     }
+    pub fn is_white(self: &Piece) -> bool {
+        !self.is_black()
+    }
 
     pub fn generate_moves(
         self: &Piece,
@@ -69,5 +72,9 @@ impl Piece {
             moves.append(&mut move_generator.generate_moves(chess_board, source));
         }
         moves
+    }
+
+    pub fn is_enemy(&self, other: &Piece) -> bool {
+        self.is_black() == other.is_white()
     }
 }

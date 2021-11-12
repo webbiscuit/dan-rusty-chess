@@ -126,10 +126,13 @@ fn generate_moves(
                     destination,
                 };
 
-                if chess_board.get_piece(destination).is_none() {
-                    moves.push(chess_move);
-                } else {
+                if let Some(piece) = chess_board.get_piece(destination) {
+                    if piece.is_enemy(chess_board.get_piece(source).as_ref().unwrap()) {
+                        moves.push(chess_move);
+                    }
                     break;
+                } else {
+                    moves.push(chess_move);
                 }
             }
 
@@ -589,6 +592,24 @@ mod tests {
 
         notationed_moves.sort();
         let mut expected_moves = vec!["b8", "c8", "d8", "a7"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_rooks_block_and_take() {
+        let chess_board = ChessBoard::from_fen("r3R3/8/r7/8/8/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("a8").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["b8", "c8", "d8", "a7", "e8"];
         expected_moves.sort();
 
         assert_eq!(notationed_moves, expected_moves)
