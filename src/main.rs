@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let fen = matches
         .value_of("fen")
-        .unwrap_or("rnbqkbnr/pppppppp/8/3nn3/8/PPPP4/4PPPP/RNBQKBNR w KQkq - 0 1");
+        .unwrap_or("r3r3/8/r7/8/8/8/8/8 w KQkq - 0 1");
 
     start_ui(fen)
 }

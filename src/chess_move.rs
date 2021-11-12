@@ -20,10 +20,10 @@ impl StraightSlidingMoves {
     }
 }
 impl MoveGenerator for StraightSlidingMoves {
-    fn generate_moves(&self, _chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
+    fn generate_moves(&self, chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
         static DIRECTIONS: [(i8, i8); 4] = [(1, 0), (0, 1), (-1, 0), (0, -1)];
 
-        generate_moves(source, self.max_moves, &DIRECTIONS)
+        generate_moves(chess_board, source, self.max_moves, &DIRECTIONS)
     }
 }
 
@@ -40,12 +40,13 @@ impl PawnMoves {
     }
 }
 impl MoveGenerator for PawnMoves {
-    fn generate_moves(&self, _chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
+    fn generate_moves(&self, chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
         let directions: [(i8, i8); 1] = [(0, self.file_direction)];
 
         let (_, rank_ix) = ChessBoard::square_to_file_and_rank(source);
 
         generate_moves(
+            chess_board,
             source,
             if self.double_step_rank == rank_ix + 1 {
                 2
@@ -66,10 +67,10 @@ impl DiagonalSlidingMoves {
     }
 }
 impl MoveGenerator for DiagonalSlidingMoves {
-    fn generate_moves(&self, _chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
+    fn generate_moves(&self, chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
         static DIRECTIONS: [(i8, i8); 4] = [(1, 1), (1, -1), (-1, 1), (-1, -1)];
 
-        generate_moves(source, self.max_moves, &DIRECTIONS)
+        generate_moves(chess_board, source, self.max_moves, &DIRECTIONS)
     }
 }
 
@@ -82,7 +83,7 @@ impl JumpingMoves {
     }
 }
 impl MoveGenerator for JumpingMoves {
-    fn generate_moves(&self, _chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
+    fn generate_moves(&self, chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
         static DIRECTIONS: [(i8, i8); 8] = [
             (1, 2),
             (-1, -2),
@@ -94,11 +95,16 @@ impl MoveGenerator for JumpingMoves {
             (-2, 1),
         ];
 
-        generate_moves(source, self.max_moves, &DIRECTIONS)
+        generate_moves(chess_board, source, self.max_moves, &DIRECTIONS)
     }
 }
 
-fn generate_moves(source: u8, max_moves: u8, directions: &[(i8, i8)]) -> Vec<ChessMove> {
+fn generate_moves(
+    chess_board: &ChessBoard,
+    source: u8,
+    max_moves: u8,
+    directions: &[(i8, i8)],
+) -> Vec<ChessMove> {
     let mut moves: Vec<ChessMove> = Vec::new();
     let (file_ix, rank_ix) = ChessBoard::square_to_file_and_rank(source);
 
@@ -120,7 +126,11 @@ fn generate_moves(source: u8, max_moves: u8, directions: &[(i8, i8)]) -> Vec<Che
                     destination,
                 };
 
-                moves.push(chess_move);
+                if chess_board.get_piece(destination).is_none() {
+                    moves.push(chess_move);
+                } else {
+                    break;
+                }
             }
 
             count += 1;
@@ -561,6 +571,24 @@ mod tests {
 
         notationed_moves.sort();
         let mut expected_moves = vec!["a1"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_rooks_can_be_blocked() {
+        let chess_board = ChessBoard::from_fen("r3r3/8/r7/8/8/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("a8").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["b8", "c8", "d8", "a7"];
         expected_moves.sort();
 
         assert_eq!(notationed_moves, expected_moves)
