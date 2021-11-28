@@ -23,7 +23,14 @@ impl MoveGenerator for StraightSlidingMoves {
     fn generate_moves(&self, chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
         static DIRECTIONS: [(i8, i8); 4] = [(1, 0), (0, 1), (-1, 0), (0, -1)];
 
-        generate_moves(chess_board, source, self.max_moves, &DIRECTIONS)
+        generate_moves(
+            chess_board,
+            source,
+            self.max_moves,
+            &DIRECTIONS,
+            true,
+            false,
+        )
     }
 }
 
@@ -45,7 +52,7 @@ impl MoveGenerator for PawnMoves {
 
         let (_, rank_ix) = ChessBoard::square_to_file_and_rank(source);
 
-        generate_moves(
+        let forward_moves = generate_moves(
             chess_board,
             source,
             if self.double_step_rank == rank_ix + 1 {
@@ -54,7 +61,15 @@ impl MoveGenerator for PawnMoves {
                 1
             },
             &directions,
-        )
+            false,
+            false,
+        );
+
+        let take_directions: [(i8, i8); 2] = [(-1, self.file_direction), (1, self.file_direction)];
+
+        let taking_moves = generate_moves(chess_board, source, 1, &take_directions, true, true);
+
+        [forward_moves, taking_moves].concat()
     }
 }
 
@@ -70,7 +85,14 @@ impl MoveGenerator for DiagonalSlidingMoves {
     fn generate_moves(&self, chess_board: &ChessBoard, source: SquareIndex) -> Vec<ChessMove> {
         static DIRECTIONS: [(i8, i8); 4] = [(1, 1), (1, -1), (-1, 1), (-1, -1)];
 
-        generate_moves(chess_board, source, self.max_moves, &DIRECTIONS)
+        generate_moves(
+            chess_board,
+            source,
+            self.max_moves,
+            &DIRECTIONS,
+            true,
+            false,
+        )
     }
 }
 
@@ -95,7 +117,14 @@ impl MoveGenerator for JumpingMoves {
             (-2, 1),
         ];
 
-        generate_moves(chess_board, source, self.max_moves, &DIRECTIONS)
+        generate_moves(
+            chess_board,
+            source,
+            self.max_moves,
+            &DIRECTIONS,
+            true,
+            false,
+        )
     }
 }
 
@@ -104,6 +133,8 @@ fn generate_moves(
     source: u8,
     max_moves: u8,
     directions: &[(i8, i8)],
+    takes_enemy: bool,
+    must_take_enemy: bool,
 ) -> Vec<ChessMove> {
     let mut moves: Vec<ChessMove> = Vec::new();
     let (file_ix, rank_ix) = ChessBoard::square_to_file_and_rank(source);
@@ -127,12 +158,17 @@ fn generate_moves(
                 };
 
                 if let Some(piece) = chess_board.get_piece(destination) {
-                    if piece.is_enemy(chess_board.get_piece(source).as_ref().unwrap()) {
+                    if takes_enemy
+                        && piece.is_enemy(chess_board.get_piece(source).as_ref().unwrap())
+                    {
                         moves.push(chess_move);
                     }
+
                     break;
                 } else {
-                    moves.push(chess_move);
+                    if !must_take_enemy {
+                        moves.push(chess_move);
+                    }
                 }
             }
 
@@ -610,6 +646,78 @@ mod tests {
 
         notationed_moves.sort();
         let mut expected_moves = vec!["b8", "c8", "d8", "a7", "e8"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_pawns_block_and_take() {
+        let chess_board = ChessBoard::from_fen("8/8/8/ppp/PPP/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("b4").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["a5", "c5"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_pawns_starting_square_moves_blocked_all_squares() {
+        let chess_board = ChessBoard::from_fen("8/ppp/R/1R/2R/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("a7").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves: Vec<String> = vec![];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_pawns_starting_square_moves_blocked_one_square_away() {
+        let chess_board = ChessBoard::from_fen("8/ppp/R/1R/2R/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("b7").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["a6", "b6"];
+        expected_moves.sort();
+
+        assert_eq!(notationed_moves, expected_moves)
+    }
+
+    #[test]
+    fn test_pawns_starting_square_moves_not_blocked() {
+        let chess_board = ChessBoard::from_fen("8/ppp/R/1R/2R/8/8/8 w KQkq - 0 1");
+        let square = ChessBoard::square_from_notation("c7").unwrap();
+        let moves = chess_board.generate_moves(square);
+
+        let mut notationed_moves: Vec<String> = moves
+            .iter()
+            .map(|m| ChessBoard::square_to_notation(m.destination).unwrap())
+            .collect();
+
+        notationed_moves.sort();
+        let mut expected_moves = vec!["c6", "c5"];
         expected_moves.sort();
 
         assert_eq!(notationed_moves, expected_moves)

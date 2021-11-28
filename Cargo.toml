@@ -10,5 +10,3 @@ tui = { version = "0.14", default-features = false, features = ['crossterm'] }
 crossterm = { version = "0.19" }
 unicode-width = "0.1"
 clap = "2.33"
-
-
