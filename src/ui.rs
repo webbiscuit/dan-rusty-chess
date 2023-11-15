@@ -121,13 +121,15 @@ fn draw_chessboard(chessboard: &ChessBoard) -> Paragraph {
                 square_colour = if chessboard.is_highlit(square_index) {
                     Color::Rgb(255, 189, 123)
                 } else {
-                    Color::Rgb(168, 123, 80)
+                    Color::White
+                    // Color::Rgb(168, 123, 80)
                 }
             } else {
                 square_colour = if chessboard.is_highlit(square_index) {
                     Color::Rgb(240, 179, 64)
                 } else {
-                    Color::Rgb(100, 70, 25)
+                    // Color::Rgb(100, 70, 25)
+                    Color::Black
                 }
             }
 

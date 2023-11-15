@@ -12,7 +12,6 @@ Learning Rust and chessing.
 - Highlight available moves for a piece
 - Loads of weird bugs
 
-
 ## Tech
 
 - Rust
@@ -43,3 +42,4 @@ Learning Rust and chessing.
 - https://www.chessprogramming.org/Main_Page
 - https://github.com/SebLague/Chess-AI
 - https://web.archive.org/web/20071026090003/http://www.brucemo.com/compchess/programming/index.htm
+- https://www.adamberent.com/wp-content/uploads/2019/02/GuideToProgrammingChessEngine.pdf
